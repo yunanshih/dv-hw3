@@ -28,88 +28,82 @@
     var allLinkID = {};
     const renderFDG = (nodes, links, max) => {
       const svg = d3$1.select('#svg1');
-        const width = +svg.attr('width');
-        const height = +svg.attr('height');
-      const g = svg
-      .append('g');
-      //.attr('transform', `translate(${margin.left},${margin.top})`);
+      const width = +svg.attr('width');
+      const height = +svg.attr('height');
+      const g = svg.append('g');
         
       const simulation = d3$1.forceSimulation(nodes)
-              .force("link", d3.forceLink(links).id(d => d.id))
-          .force("charge", d3.forceManyBody())
-          .force("center", d3.forceCenter(width / 2, height / 2));
+        .force("link", d3.forceLink(links).id(d => d.id))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
       svg.attr("viewBox", [200, 200, width, height]);
   
-      const link = g.attr("stroke", "#999")
-          .selectAll("line")
-          .data(links)
+      const link = g.attr("stroke", "darkgrey")
+        .selectAll("line")
+        .data(links)
         .join("line")
         .attr("stroke-width", d => Math.sqrt(d.value))
-          .attr("id", d => "L" + d.source.id + "x" +d.target.id)
-      ;
+        .attr("id", d => "L" + d.source.id + "x" +d.target.id);
   
       const node = svg.append("g")
-          .attr("stroke", "white")
-          .attr("stroke-width", 1.5)
-          .selectAll("circle")
-          .data(nodes)
-          .join("circle")
-          .attr("r", 5)
-          .attr("fill", d => d3.schemeCategory10[d.group])
-          .call(drag(simulation))
-          .on("mouseover", datum => {
-            var id = datum.path[0].childNodes[0].__data__.id;
-              console.log("#row" + id);
-              d3.selectAll("rect").style("fill", "black");
-              highlightLink.forEach((d) => {
-                d3.select(d).attr("stroke-width", 1).attr("stroke", "darkgrey");
-              });
-            highlightLink.length = 0;
-            for(var i=1;i<=max;i++) {
-              d3.select("#g"+i+"x"+id).style("stroke-width", "3px").style("stroke", "red");
-              d3.select("#g"+id+"x"+i).style("stroke-width", "3px").style("stroke", "red");
-            }
-      });
+        .attr("stroke", "white")
+        .attr("stroke-width", 1.5)
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("r", 5)
+        .attr("fill", d => d3.schemeCategory10[d.group])
+        .call(drag(simulation))
+        .on("mouseover", datum => {
+          console.log('mouseoverNODE');
+          var id = datum.path[0].childNodes[0].__data__.id;
+            console.log("#row" + id);
+            d3.selectAll("rect").style("fill", "black");
+            highlightLink.forEach((d) => {
+              console.log(highlightLink);
+              d3.select(d).attr("stroke-width", 1).attr("stroke", "darkgrey");
+            });
+          highlightLink.length = 0;
+          for(var i = 1; i <= max; i++) {
+            d3.select("#g" + i + "x" + id).style("fill", "red");
+            d3.select("#g" + id + "x" + i).style("fill", "red");
+          }
+        });
       d3.select('svg').call(
         d3.zoom()
         .extent([[0, 0],[450, 600],])
         .scaleExtent([1, 8])
-        .on('zoom', zoomFunct));
+        .on('zoom', zoomFunct)
+      );
   
       function zoomFunct({ transform }) {
         link.attr('transform', transform);
         node.attr('transform', transform);
       }
       
-      node.append("title")
-          .text(d => d.id);
+      node.append("title").text(d => d.id);
   
-      simulation.on("tick", () => {
-        link
-            .attr("x1", d => d.source.x)
+      simulation.on("tick", () => { 
+        link.attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
   
-        node
-            .attr("cx", d => d.x)
+        node.attr("cx", d => d.x)
             .attr("cy", d => d.y);
       });
-  
       return svg.node();
     };
   
   
     const renderAD = (matrix, nodes) => {
       const margin = { top: 10, right: 40, bottom: 50, left: 10};
-        //console.log(matrix);
-        const size = 7;
+      const size = 20;
       var svg2 = d3.select("#ad").append("svg")
       .attr("width", 3000)
       .attr("height", 3000)
       .append("g")
-      .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       matrix.forEach((m,i) => {
         svg2.append("g")
           .attr("transform","translate(50,50)")
@@ -126,6 +120,7 @@
           .attr("id", d=> "g" + (d.x+1)+"x"+(d.y+1))
           .style("fill-opacity", d=> d.weight * 1)
           .on("mouseover", datum => {
+            console.log('mouseoverAD');
             d3.selectAll("rect").style("fill", "black");
             highlightLink.forEach((d) => {
               d3.select(d).attr("fill", "red");
@@ -133,17 +128,27 @@
             highlightLink.length = 0;
             d3.select("#"+datum.path[0].id).style("fill", "red");
             if(datum.path[0].style['fillOpacity'] == "0"){
+              var tmp = datum.path[0].id.replace('g', '');
+              tmp = tmp.split('x');
+              d3.select("#t1").text("There is no link between node " + tmp[0] + " and node " + tmp[1]);
             } else {
               var tmp = datum.path[0].id.replace('g', '');
               tmp = tmp.split('x');
               if(allLinkID[datum.path[0].id.replace('g', 'L')]){
-                    d3.select("#"+datum.path[0].id.replace('g', 'L')).attr("stroke-width", 3).attr("stroke", "red");
-                    highlightLink.push("#"+datum.path[0].id.replace('g', 'L'));
+                d3.select("#t1").text("The link between node " + tmp[0] + " and node " + tmp[1] + " has been highlighted.");
+                d3.select("#"+datum.path[0].id.replace('g', 'L')).attr("stroke-width", 3).attr("stroke", "red");
+                highlightLink.push("#"+datum.path[0].id.replace('g', 'L'));
               } else {
-                  d3.select("#L"+tmp[1]+"x"+tmp[0]).attr("stroke-width", 3).attr("stroke", "red");
-                  highlightLink.push("#L"+tmp[1]+"x"+tmp[0]);
+                d3.select("#t1").text("The link between node " + tmp[0] + " and node " + tmp[1] + " has been highlighted.");
+                d3.select("#L"+tmp[1]+"x"+tmp[0]).attr("stroke-width", 3).attr("stroke", "red");
+                highlightLink.push("#L"+tmp[1]+"x"+tmp[0]);
               }
             }
+          })
+          .on("mouseout", function() {
+            highlightLink.forEach((d) => {
+              d3.select(d).attr("stroke-width", 1).attr("stroke", "darkgrey");
+            });
           });
         });
             
@@ -157,7 +162,7 @@
             .attr("x", (d,i) => i * size + size/2)
             .text(d => d.id)
             .style("text-anchor","middle")
-            .style("font-size","4px");
+            .style("font-size","10px");
   
         svg2
             .append("g").attr("transform","translate(45,52.5)")
@@ -168,7 +173,7 @@
             .attr("y",(d,i) => i * size + size/2)
             .text(d => d.id)
             .style("text-anchor","middle")
-            .style("font-size","5px");
+            .style("font-size","10px");
   
             
     };

@@ -1,0 +1,10 @@
+.grid {
+    stroke: darkgrey;
+    fill: black;
+} 
+  
+#ad {
+    position: absolute;
+    left: 460px;
+    top: -50px;
+}

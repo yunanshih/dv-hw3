@@ -17,12 +17,10 @@ const drag = simulation => {
   }
   
   return d3.drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended);
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
 };
-
-var highlightEdges = [];
 
 const renderNodelink = (nodes, links, max) => {
   const svg = d3.select('#svg1');
@@ -36,61 +34,77 @@ const renderNodelink = (nodes, links, max) => {
     .force("center", d3.forceCenter(width / 2, height / 2));
 
   const link = svg.append('g')
-    .attr("stroke", "darkgrey")
     .selectAll("line")
     .data(links)
     .join("line")
+    .attr("stroke", "black")
     .attr("stroke-width", 1)
+    .style("stroke-opacity", 0.3)
     .attr("id", d => `E${d.source.id}-${d.target.id}`);
 
   const node = svg.append("g")
-    .attr("stroke", "white")
-    .attr("stroke-width", 1.5)
     .selectAll("circle")
     .data(nodes)
     .join("circle")
+    .attr("stroke", "white")
+    .attr("stroke-width", 1.5)
     .attr("r", d => d.group + 4)
     .attr("fill", d => d3.schemeCategory10[d.group - 1])
+    .attr("id", d => `N${d.id}`)
     .call(drag(simulation))
     .on("mouseover", n => {
-      var id = n.path[0].childNodes[0].__data__.id;
+      var id = n.path[0].id.replace('N', '');
       for(var i = 1; i <= max; i++) {
         const row = d3.select(`#T${id}-${i}`);
         if(row.style("fill-opacity") < 1) {
-          row.style("fill-opacity", 0.3).style("fill", "yellow");
+          row.style("fill-opacity", 0.3)
+            .style("fill", "yellow");
         } else {
-          row.style("fill", "red");  
+          row.style("fill", "red");
+          d3.select(`#E${id}-${i}`)
+            .attr("stroke-width", 2)
+            .attr("stroke", "red")
+            .style("stroke-opacity", 1);
         }
         const col = d3.select(`#T${i}-${id}`);
         if(col.style("fill-opacity") < 1) {
-          col.style("fill-opacity", 0.3).style("fill", "yellow");
+          col.style("fill-opacity", 0.3)
+            .style("fill", "yellow");
         } else {
           col.style("fill", "red");
+          d3.select(`#E${i}-${id}`)
+            .attr("stroke-width", 2)
+            .attr("stroke", "red")
+            .style("stroke-opacity", 1);
         }
       }
     })
     .on("mouseout", function() {
-      d3.selectAll("rect").style("fill", "black");
+      d3.selectAll("line")
+        .attr("stroke-width", 1)
+        .attr("stroke", "black")
+        .style("stroke-opacity", 0.3);
+      d3.selectAll("rect")
+        .style("fill", "black");
       d3.selectAll("rect").filter(function() {
         return d3.select(this).style("fill-opacity") < 1;
       })
         .style("fill-opacity", 0)
-        .style("fill", "black");
     });
 
-  d3.select('svg').call(
-    d3.zoom()
-    .extent([[0, 0],[450, 600],])
-    .scaleExtent([1, 8])
-    .on('zoom', zoomFunct)
-  );
+  node.append("title").text(d => d.id);
 
   function zoomFunct({ transform }) {
     link.attr('transform', transform);
     node.attr('transform', transform);
   }
   
-  node.append("title").text(d => d.id);
+  d3.select('svg').call(
+    d3.zoom()
+    .extent([[0, 0],[450, 600],])
+    .scaleExtent([1, 8])
+    .on('zoom', zoomFunct)
+  );
 
   simulation.on("tick", () => { 
     link.attr("x1", d => d.source.x)
@@ -122,31 +136,34 @@ const renderAdjacency = (matrix, nodes, max) => {
       .attr("y", d => d.y * size)
       .attr("id", d => `T${d.x + 1}-${d.y + 1}`)
       .style("fill-opacity", d => d.weight)
-      .on("mouseover", block => {
-        d3.select(`#${block.path[0].id}`).style("fill", "red");
-        if(block.path[0].style['fillOpacity'] != "0") {
-            var id = block.path[0].id.replace('T', '');
+      .on("mouseover", t => {
+        d3.select(`#${t.path[0].id}`)
+          .style("fill", "red");
+        if(t.path[0].style['fillOpacity'] != "0") {
+            var id = t.path[0].id.replace('T', '');
             id = id.split('-');
             d3.select(`#E${id[0]}-${id[1]}`)
-              .attr("stroke-width", 3)
+              .attr("stroke-width", 2)
               .attr("stroke", "red")
+              .style("stroke-opacity", 1);
             d3.select(`#E${id[1]}-${id[0]}`)
-              .attr("stroke-width", 3)
+              .attr("stroke-width", 2)
               .attr("stroke", "red")
-            highlightEdges.push(`#E${id[0]}-${id[1]}`, `#E${id[1]}-${id[0]}`);
+              .style("stroke-opacity", 1);
         }
       })
       .on("mouseout", function() {
-        highlightEdges.forEach(d => {
-          d3.select(d).attr("stroke-width", 1).attr("stroke", "darkgrey");
-        })
-        highlightEdges = [];
-        d3.selectAll("rect").style("fill", "black");
+        d3.selectAll("rect")
+          .style("fill", "black");
+        d3.selectAll("line")
+          .attr("stroke-width", 1)
+          .attr("stroke", "black")
+          .style("stroke-opacity", 0.3);
       });
     });
         
     svg2.append("g")
-        .attr("transform","translate(20, 15)")
+        .attr("transform","translate(20,15)")
         .selectAll("text")
         .data(nodes)
         .enter()
@@ -156,7 +173,7 @@ const renderAdjacency = (matrix, nodes, max) => {
         .style("text-anchor", "middle")
         .style("font-size", "8px");
 
-    svg2.append("g").attr("transform","translate(12, 23)")
+    svg2.append("g").attr("transform","translate(12,23)")
         .selectAll("text")
         .data(nodes)
         .enter()

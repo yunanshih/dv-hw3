@@ -3,7 +3,7 @@ body {
     padding: 0;
 }
 
-.grid {
+.tile {
     stroke: darkgrey;
     fill: black;
 }

@@ -28,20 +28,20 @@ const renderNodelink = (nodes, links, max) => {
   const svg = d3.select('#svg1');
   const width = +svg.attr('width');
   const height = +svg.attr('height');
-  const g = svg.append('g');
+  svg.attr("viewBox", [200, 200, width, height]);
     
   const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).id(d => d.id))
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
-  svg.attr("viewBox", [200, 200, width, height]);
 
-  const link = g.attr("stroke", "darkgrey")
+  const link = svg.append('g')
+    .attr("stroke", "darkgrey")
     .selectAll("line")
     .data(links)
     .join("line")
-    .attr("stroke-width", d => Math.sqrt(d.value))
-    .attr("id", d => "L" + d.source.id + "x" +d.target.id);
+    .attr("stroke-width", 1)
+    .attr("id", d => `E${d.source.id}-${d.target.id}`);
 
   const node = svg.append("g")
     .attr("stroke", "white")
@@ -49,18 +49,33 @@ const renderNodelink = (nodes, links, max) => {
     .selectAll("circle")
     .data(nodes)
     .join("circle")
-    .attr("r", 5)
-    .attr("fill", d => d3.schemeCategory10[d.group])
+    .attr("r", d => d.group + 4)
+    .attr("fill", d => d3.schemeCategory10[d.group - 1])
     .call(drag(simulation))
-    .on("mouseover", edge => {
-      var id = edge.path[0].childNodes[0].__data__.id;
+    .on("mouseover", n => {
+      var id = n.path[0].childNodes[0].__data__.id;
       for(var i = 1; i <= max; i++) {
-        d3.select(`#g${i}x${id}`).style("fill", "red");
-        d3.select(`#g${id}x${i}`).style("fill", "red");
+        const row = d3.select(`#T${id}-${i}`);
+        if(row.style("fill-opacity") < 1) {
+          row.style("fill-opacity", 0.3).style("fill", "yellow");
+        } else {
+          row.style("fill", "red");  
+        }
+        const col = d3.select(`#T${i}-${id}`);
+        if(col.style("fill-opacity") < 1) {
+          col.style("fill-opacity", 0.3).style("fill", "yellow");
+        } else {
+          col.style("fill", "red");
+        }
       }
     })
     .on("mouseout", function() {
       d3.selectAll("rect").style("fill", "black");
+      d3.selectAll("rect").filter(function() {
+        return d3.select(this).style("fill-opacity") < 1;
+      })
+        .style("fill-opacity", 0)
+        .style("fill", "black");
     });
 
   d3.select('svg').call(
@@ -89,40 +104,36 @@ const renderNodelink = (nodes, links, max) => {
 };
 
 
-const renderAdjacency = (matrix, nodes) => {
+const renderAdjacency = (matrix, nodes, max) => {
   const size = 10;
-  const svg2 = d3.select('#svg2')
-    .append('g')
-  matrix.forEach((m, i) => {
+  const svg2 = d3.select('#svg2').append('g')
+  matrix.forEach((tile, i) => {
     svg2.append("g")
       .attr("transform", "translate(20,20)")
       .attr("id","row" + (i + 1))
       .selectAll("rect")
-      .data(m)
+      .data(tile)
       .enter()
       .append("rect")
-      .attr("class", "grid")
+      .attr("class", "tile")
       .attr("width", size)
       .attr("height", size)
-      .attr("x", d=> d.x * size)
-      .attr("y", d=> d.y * size)
-      .attr("id", d=> "g" + (d.x + 1) + "x" + (d.y + 1))
-      .style("fill-opacity", d=> d.weight * 1)
+      .attr("x", d => d.x * size)
+      .attr("y", d => d.y * size)
+      .attr("id", d => `T${d.x + 1}-${d.y + 1}`)
+      .style("fill-opacity", d => d.weight)
       .on("mouseover", block => {
-        d3.select("#"+block.path[0].id).style("fill", "red");
+        d3.select(`#${block.path[0].id}`).style("fill", "red");
         if(block.path[0].style['fillOpacity'] != "0") {
-            var id = block.path[0].id.replace('g', '');
-            id = id.split('x');
-            d3.select(`#L${id[0]}x${id[1]}`)
+            var id = block.path[0].id.replace('T', '');
+            id = id.split('-');
+            d3.select(`#E${id[0]}-${id[1]}`)
               .attr("stroke-width", 3)
               .attr("stroke", "red")
-            d3.select(`#L${id[1]}x${id[0]}`)
+            d3.select(`#E${id[1]}-${id[0]}`)
               .attr("stroke-width", 3)
               .attr("stroke", "red")
-            // d3.select(`#L${id[1]}x${id[0]}`)
-            //   .attr("stroke-width", 3)
-            //   .attr("stroke", "red")
-            highlightEdges.push(`#L${id[0]}x${id[1]}`, `#L${id[1]}x${id[0]}`);
+            highlightEdges.push(`#E${id[0]}-${id[1]}`, `#E${id[1]}-${id[0]}`);
         }
       })
       .on("mouseout", function() {
@@ -142,15 +153,15 @@ const renderAdjacency = (matrix, nodes) => {
         .append("text")
         .attr("x", (d,i) => i * size + size / 2)
         .text(d => d.id)
-        .style("text-anchor","middle")
-        .style("font-size","8px");
+        .style("text-anchor", "middle")
+        .style("font-size", "8px");
 
     svg2.append("g").attr("transform","translate(12, 23)")
         .selectAll("text")
         .data(nodes)
         .enter()
         .append("text")
-        .attr("y",(d,i) => i * size + size / 2)
+        .attr("y", (d,i) => i * size + size / 2)
         .text(d => d.id)
         .style("text-anchor","middle")
         .style("font-size","8px");
@@ -204,14 +215,14 @@ d3.csv('edge.edges').then((data) => {
   for (var y = min; y <= max; y++) {
     var row = [];
     for (var x = min; x <= max; x++) {
-      var grid = { x: x - 1, y: y - 1, weight: 0 };
+      var tile = { x: x - 1, y: y - 1, weight: 0 };
       if (edgeHash[y + '-' + x]) {
-        grid.weight = 1;
+        tile.weight = 1;
       }
-      row.push(grid);
+      row.push(tile);
     }
     matrix.push(row);
   }
   renderNodelink(nodes, links, max);
-  renderAdjacency(matrix, nodes);
+  renderAdjacency(matrix, nodes, max);
 });

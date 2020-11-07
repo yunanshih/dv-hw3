@@ -23,7 +23,6 @@ const drag = simulation => {
 };
 
 var highlightEdges = [];
-var allEdges = {};
 
 const renderNodelink = (nodes, links, max) => {
   const svg = d3.select('#svg1');
@@ -37,8 +36,7 @@ const renderNodelink = (nodes, links, max) => {
     .force("center", d3.forceCenter(width / 2, height / 2));
   svg.attr("viewBox", [200, 200, width, height]);
 
-  const link = g.attr("stroke", "black")
-    .attr("opacity", "0.4")
+  const link = g.attr("stroke", "darkgrey")
     .selectAll("line")
     .data(links)
     .join("line")
@@ -58,7 +56,7 @@ const renderNodelink = (nodes, links, max) => {
       var id = edge.path[0].childNodes[0].__data__.id;
       for(var i = 1; i <= max; i++) {
         d3.select(`#g${i}x${id}`).style("fill", "red");
-        d3.select(`#g${id}x${id}`).style("fill", "red");
+        d3.select(`#g${id}x${i}`).style("fill", "red");
       }
     })
     .on("mouseout", function() {
@@ -91,14 +89,13 @@ const renderNodelink = (nodes, links, max) => {
 };
 
 
-const renderAdjacency  = (matrix, nodes) => {
-  const svg2 = d3.select('#svg2')
-    .attr("transform", "translate(10,10)")
-    .append('g')
+const renderAdjacency = (matrix, nodes) => {
   const size = 10;
-  matrix.forEach((m,i) => {
+  const svg2 = d3.select('#svg2')
+    .append('g')
+  matrix.forEach((m, i) => {
     svg2.append("g")
-      .attr("transform", "translate(50,50)")
+      .attr("transform", "translate(20,20)")
       .attr("id","row" + (i + 1))
       .selectAll("rect")
       .data(m)
@@ -114,33 +111,31 @@ const renderAdjacency  = (matrix, nodes) => {
       .on("mouseover", block => {
         d3.select("#"+block.path[0].id).style("fill", "red");
         if(block.path[0].style['fillOpacity'] != "0") {
-            var tmp = block.path[0].id.replace('g', '');
-            tmp = tmp.split('x');
-            d3.select(`#L${tmp[0]}x${tmp[1]}`)
+            var id = block.path[0].id.replace('g', '');
+            id = id.split('x');
+            d3.select(`#L${id[0]}x${id[1]}`)
               .attr("stroke-width", 3)
               .attr("stroke", "red")
-              .attr("opacity", "1");
-            d3.select(`#L${tmp[1]}x${tmp[0]}`)
+            d3.select(`#L${id[1]}x${id[0]}`)
               .attr("stroke-width", 3)
               .attr("stroke", "red")
-              .attr("opacity", "1");
-            highlightEdges.push(`#L${tmp[0]}x${tmp[1]}`, `#L${tmp[1]}x${tmp[0]}`);
+            // d3.select(`#L${id[1]}x${id[0]}`)
+            //   .attr("stroke-width", 3)
+            //   .attr("stroke", "red")
+            highlightEdges.push(`#L${id[0]}x${id[1]}`, `#L${id[1]}x${id[0]}`);
         }
       })
       .on("mouseout", function() {
         highlightEdges.forEach(d => {
-          d3.select(d).attr("stroke-width", 1)
-            .attr("stroke", "black")
-            .attr("opacity", "0.5");
+          d3.select(d).attr("stroke-width", 1).attr("stroke", "darkgrey");
         })
-        console.log("mouseout", highlightEdges);
         highlightEdges = [];
         d3.selectAll("rect").style("fill", "black");
       });
     });
         
     svg2.append("g")
-        .attr("transform","translate(50,47)")
+        .attr("transform","translate(20, 15)")
         .selectAll("text")
         .data(nodes)
         .enter()
@@ -148,9 +143,9 @@ const renderAdjacency  = (matrix, nodes) => {
         .attr("x", (d,i) => i * size + size / 2)
         .text(d => d.id)
         .style("text-anchor","middle")
-        .style("font-size","10px");
+        .style("font-size","8px");
 
-    svg2.append("g").attr("transform","translate(45,50)")
+    svg2.append("g").attr("transform","translate(12, 23)")
         .selectAll("text")
         .data(nodes)
         .enter()
@@ -159,21 +154,22 @@ const renderAdjacency  = (matrix, nodes) => {
         .text(d => d.id)
         .style("text-anchor","middle")
         .style("font-size","8px");
-
-        
 };
 
 d3.csv('edge.edges').then((data) => {
   var max = 0;
   var min = 9999;
-  var edges = [];
-  var countEdges = [];
+  var links = [];
+  var countLinks = [];
   for (var i = 0; i <= 1000; i++) {
-    countEdges.push(0);
+    countLinks.push(0);
   }
   var key = Object.keys(data[0])[0];
-  edges.push({source: key.split(' ')[0], target: key.split(' ')[1], value : 1});
-  allEdges["L"+key.split(' ')[0]+"x"+key.split(' ')[1]] = 1;
+  links.push({
+    source: key.split(' ')[0],
+    target: key.split(' ')[1],
+    value: 1,
+  });
   data.forEach((d) => {
     key = Object.keys(d);
     var tmp = d[Object.keys(d)].split(' ');
@@ -181,42 +177,41 @@ d3.csv('edge.edges').then((data) => {
     d.source = tmp[0];
     d.target = tmp[1];
     d.value = 1;
-    if(parseInt(tmp[0], 10) > max) max = d.source;
-    if(parseInt(tmp[1], 10) > max) max = d.target;
-    if(parseInt(tmp[0], 10) < min) min = d.source;
-    if(parseInt(tmp[1], 10) < min) min = d.target;
-    edges.push(d);
-    allEdges["L"+d.source+"x"+d.target] = 1;
-    countEdges[parseInt(tmp[0], 10)] += 1;
-    countEdges[parseInt(tmp[1], 10)] += 1;
+    if (parseInt(tmp[0], 10) > max) max = d.source;
+    if (parseInt(tmp[1], 10) > max) max = d.target;
+    if (parseInt(tmp[0], 10) < min) min = d.source;
+    if (parseInt(tmp[1], 10) < min) min = d.target;
+    links.push(d);
+    countLinks[parseInt(tmp[0], 10)] += 1;
+    countLinks[parseInt(tmp[1], 10)] += 1;
   });
   var nodes = [];
-    for (var i = min; i <= max; i++) {
-      nodes.push({
-        id: String(i),
-        group: Math.ceil(countEdges[i]/10)
-      });
-    }
-    var edgeHash = {};
-    edges.forEach((d) => {
-    var id = d.source + "-" + d.target;
+  for (var i = min; i <= max; i++) {
+    nodes.push({
+      id: String(i),
+      group: Math.ceil(countLinks[i] / 10),
+    });
+  }
+  var edgeHash = {};
+  links.forEach((d) => {
+    var id = d.source + '-' + d.target;
     edgeHash[id] = 1;
-    var id = d.target + "-" + d.source;
+    var id = d.target + '-' + d.source;
     edgeHash[id] = 1;
   });
-  
+
   var matrix = [];
-  for(var y=min; y<=max; y++) {
+  for (var y = min; y <= max; y++) {
     var row = [];
-      for(var x=min; x<=max; x++) {
-        var grid = {x: x-1, y: y-1, weight: 0};
-      if(edgeHash[y + "-" + x]){
-          grid.weight = 1;
+    for (var x = min; x <= max; x++) {
+      var grid = { x: x - 1, y: y - 1, weight: 0 };
+      if (edgeHash[y + '-' + x]) {
+        grid.weight = 1;
       }
       row.push(grid);
     }
     matrix.push(row);
   }
-  renderNodelink(nodes, edges, max);
+  renderNodelink(nodes, links, max);
   renderAdjacency(matrix, nodes);
 });

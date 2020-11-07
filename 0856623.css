@@ -9,16 +9,15 @@ body {
 }
 
 #nodelink {
-    width: 600;
+    width: 500;
     height: 900;
 }
 
 #adjacencymatrix {
     position: absolute;
-    left: 560px;
-    top: -40px;
-    width: 850px;
-    height: 1000px;
+    left: 500px;
+    top: 0px;
+    width: 950px;
+    height: 900px;
     overflow: auto;
-    z-index: 10;
 }

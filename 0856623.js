@@ -184,7 +184,7 @@ const renderAdjacency = (matrix, nodes) => {
         .style("font-size", "8px");
 };
 
-d3.csv('edge.edges').then((data) => {
+d3.csv('http://vis.lab.djosix.com:2020/data/infect-dublin.edges').then((data) => {
   var max = 0;
   var min = 9999;
   var links = [];

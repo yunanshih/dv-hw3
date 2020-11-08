@@ -118,13 +118,13 @@ const renderNodelink = (nodes, links, max) => {
 };
 
 
-const renderAdjacency = (matrix, nodes, max) => {
+const renderAdjacency = (matrix, nodes) => {
   const size = 10;
   const svg2 = d3.select('#svg2').append('g')
   matrix.forEach((tile, i) => {
     svg2.append("g")
       .attr("transform", "translate(20,20)")
-      .attr("id","row" + (i + 1))
+      .attr("id", "row" + (i + 1))
       .selectAll("rect")
       .data(tile)
       .enter()
@@ -180,8 +180,8 @@ const renderAdjacency = (matrix, nodes, max) => {
         .append("text")
         .attr("y", (d,i) => i * size + size / 2)
         .text(d => d.id)
-        .style("text-anchor","middle")
-        .style("font-size","8px");
+        .style("text-anchor", "middle")
+        .style("font-size", "8px");
 };
 
 d3.csv('edge.edges').then((data) => {
@@ -241,5 +241,5 @@ d3.csv('edge.edges').then((data) => {
     matrix.push(row);
   }
   renderNodelink(nodes, links, max);
-  renderAdjacency(matrix, nodes, max);
+  renderAdjacency(matrix, nodes);
 });

@@ -151,12 +151,12 @@ function matrix(json) {
 	  .data(row.filter(function(d) { return d.z; }))
       .enter().append("rect")
         .attr("class", "cell")
-        .attr("id", d => 'T'+nodes[d.y].name+'-'+nodes[d.x].name)
+        .attr("id", d => `T${nodes[d.y].name}-${nodes[d.x].name}`)
         .attr("x", function(d) { return x(d.x); })
-        .attr("width", 10)
-        .attr("height", 10)
-        .style("fill-opacity", function(d) { return z(d.z); })
-        .style("fill", function(d) { return nodes[d.x].group == nodes[d.y].group ? c(nodes[d.x].group) : null; })
+        .attr("width", x.bandwidth())
+        .attr("height", x.bandwidth())
+        .style("fill-opacity", function(d) { return z(d.z); }) 
+        .style("fill", function(d) { return nodes[d.x].group == nodes[d.y].group ? d3.schemeCategory10[nodes[d.x].group - 1] : null; })
         .on("mouseover", mouseover)
         .on("mouseout", mouseout);
   }
@@ -171,21 +171,34 @@ function matrix(json) {
         .append("rect")
         .attr("class", "highlight")
         .attr("width", width)
-        .attr("height", 10);
+        .attr("height", x.bandwidth());
     d3.select("#col" + (id[1] - 1))
         .append("rect")
         .attr("class", "highlight")
         .attr("x", -width)
-        .attr("width", 4000)
-        .attr("height", 10);
-    d3.select(`#E${id[0]}-${id[1]}`)
+        .attr("width", width)
+        .attr("height", x.bandwidth());
+    if(id[1] == id[0]) {
+        for(var i = 0; i <= 410; i++) {
+            d3.select(`#E${id[0]}-${i}`)
+                .attr("stroke-width", 2)
+                .attr("stroke", "red")
+                .style("stroke-opacity", 1);
+            d3.select(`#E${i}-${id[0]}`)
+                .attr("stroke-width", 2)
+                .attr("stroke", "red")
+                .style("stroke-opacity", 1);
+        }
+    } else {
+        d3.select(`#E${id[0]}-${id[1]}`)
         .attr("stroke-width", 2)
         .attr("stroke", "red")
         .style("stroke-opacity", 1);
-    d3.select(`#E${id[1]}-${id[0]}`)
-        .attr("stroke-width", 2)
-        .attr("stroke", "red")
-        .style("stroke-opacity", 1);
+        d3.select(`#E${id[1]}-${id[0]}`)
+            .attr("stroke-width", 2)
+            .attr("stroke", "red")
+            .style("stroke-opacity", 1);
+    }
   }
 
   function mouseout(p) {

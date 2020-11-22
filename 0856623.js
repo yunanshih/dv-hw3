@@ -62,13 +62,20 @@ const renderNodelink = (nodes, links, max) => {
           .attr("stroke-width", 2)
           .attr("stroke", "red")
           .style("stroke-opacity", 1);
-        d3.select(`#T${id}-${i}`)
-          .attr("stroke-width", 2)
-          .attr("stroke", "red")
-        d3.select(`#T${i}-${id}`)
-          .attr("stroke-width", 2)
-          .attr("stroke", "red")
       }
+      d3.selectAll(".row text").classed("active", function(d, i) { return i == n.y; });
+      d3.selectAll(".column text").classed("active", function(d, i) { return i == n.x; });
+      d3.select("#row" + (id - 1))
+        .append("rect")
+        .attr("class", "highlight")
+        .attr("width", width)
+        .attr("height", x.bandwidth());
+      d3.select("#col" + (id - 1))
+        .append("rect")
+        .attr("class", "highlight")
+        .attr("x", -width)
+        .attr("width", width)
+        .attr("height", x.bandwidth());
     })
     .on("mouseout", function() {
       d3.selectAll("line")
@@ -78,6 +85,9 @@ const renderNodelink = (nodes, links, max) => {
       d3.selectAll("rect")
         .attr("stroke-width", 1)
         .attr("stroke", "white")
+      d3.selectAll("text").classed("active", false);
+      d3.select(this).select("title").remove();
+      d3.selectAll(".highlight").remove();
     });
 
   node.append("title").text(d => d.id);

@@ -68,13 +68,13 @@ const renderNodelink = (nodes, links, max) => {
       d3.select("#row" + (id - 1))
         .append("rect")
         .attr("class", "highlight")
-        .attr("width", width)
+        .attr("width", 4000)
         .attr("height", x.bandwidth());
       d3.select("#col" + (id - 1))
         .append("rect")
         .attr("class", "highlight")
-        .attr("x", -width)
-        .attr("width", width)
+        .attr("x", -4000)
+        .attr("width", 4000)
         .attr("height", x.bandwidth());
     })
     .on("mouseout", function() {

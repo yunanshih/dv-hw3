@@ -11,7 +11,7 @@ body {
 #adjacencymatrix {
     position: absolute;
     top: 0;
-    left: 800px;
+    left: 700px;
     width: 900px;
     height: 900px;
     overflow: auto;
@@ -37,7 +37,7 @@ body {
 }
 
 .controls {
-    width: 500px;
+    width: 600px;
     display: flex;
     justify-content: space-around;
 }

@@ -222,7 +222,7 @@ function matrix(json) {
 	}
 	x.domain(orders[value]);
 
-	var t = svg.transition().duration(1500);
+	var t = svg.transition().duration(500);
 
 	t.selectAll(".row")
             .delay(function(d, i) { return x(i) * 4; })

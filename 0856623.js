@@ -63,8 +63,8 @@ const renderNodelink = (nodes, links, max) => {
           .attr("stroke", "red")
           .style("stroke-opacity", 1);
       }
-      d3.selectAll(".row text").classed("active", function(d, i) { return i == n.y; });
-      d3.selectAll(".column text").classed("active", function(d, i) { return i == n.x; });
+      d3.selectAll(".row text").classed("active", function(d, i) { return i == id - 1; });
+      d3.selectAll(".column text").classed("active", function(d, i) { return i == id - 1; });
       d3.select("#row" + (id - 1))
         .append("rect")
         .attr("class", "highlight")

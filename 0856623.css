@@ -3,21 +3,35 @@ body {
     padding: 0;
 }
 
-.tile {
-    stroke: darkgrey;
-    fill: black;
-}
-
 #nodelink {
-    width: 500;
-    height: 900;
+    width: 800px;
+    height: 900px;
 }
 
 #adjacencymatrix {
     position: absolute;
-    left: 500px;
-    top: 0px;
-    width: 950px;
+    top: 0;
+    left: 800px;
+    width: 900px;
     height: 900px;
     overflow: auto;
+}
+
+.background {
+  fill: #eee;
+}
+
+#adjacencymatrix line {
+  stroke: white;
+}
+
+#adjacencymatrix text.active {
+  fill: red;
+  font-size: 120%;
+}
+
+#adjacencymatrix rect.highlight {
+    fill: none;
+    stroke: red;
+    stroke-width: 2;
 }

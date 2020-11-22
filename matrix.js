@@ -123,15 +123,15 @@ function matrix(json) {
       .attr("x2", width);
 
   row.append("text")
-      .attr("x", -6)
-      .attr("y", 10 / 2)
-      .style("font-size", "6px")
+      .attr("x", -4)
+      .attr("y", 8)
+      .style("font-size", "8px")
       .attr("text-anchor", "end")
       .text(function(d, i) { return nodes[i].name; });
 
   var column = svg.selectAll(".column")
       .data(matrix)
-    .enter().append("g")
+      .enter().append("g")
       .attr("id", function(d, i) { return "col"+i; })
       .attr("class", "column")
       .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
@@ -140,9 +140,9 @@ function matrix(json) {
       .attr("x1", -width);
 
   column.append("text")
-      .attr("x", 6)
-      .attr("y", 10 / 2)
-      .style("font-size", "6px")
+      .attr("x", 4)
+      .attr("y", 6)
+      .style("font-size", "8px")
       .attr("text-anchor", "start")
       .text(function(d, i) { return nodes[i].name; });
 
@@ -166,24 +166,36 @@ function matrix(json) {
     id = id.split('-');
     d3.selectAll(".row text").classed("active", function(d, i) { return i == id[1] - 1; });
     d3.selectAll(".column text").classed("active", function(d, i) { return i == id[0] - 1; });
-      d3.select(this).insert("title").text(p.toElement.id);
-      d3.select(this.parentElement)
-	  .append("rect")
-	  .attr("class", "highlight")
-	  .attr("width", width)
-	  .attr("height", x.bandwidth());
-      d3.select("#col" + (id[1] - 1))
-	  .append("rect")
-	  .attr("class", "highlight")
-	  .attr("x", -width)
-	  .attr("width", width)
-	  .attr("height", x.bandwidth());
+    d3.select(this).insert("title").text(p.toElement.id);
+    d3.select(this.parentElement)
+        .append("rect")
+        .attr("class", "highlight")
+        .attr("width", width)
+        .attr("height", 10);
+    d3.select("#col" + (id[1] - 1))
+        .append("rect")
+        .attr("class", "highlight")
+        .attr("x", -width)
+        .attr("width", 4000)
+        .attr("height", 10);
+    d3.select(`#E${id[0]}-${id[1]}`)
+        .attr("stroke-width", 2)
+        .attr("stroke", "red")
+        .style("stroke-opacity", 1);
+    d3.select(`#E${id[1]}-${id[0]}`)
+        .attr("stroke-width", 2)
+        .attr("stroke", "red")
+        .style("stroke-opacity", 1);
   }
 
   function mouseout(p) {
     d3.selectAll("text").classed("active", false);
-      d3.select(this).select("title").remove();
-      d3.selectAll(".highlight").remove();
+    d3.select(this).select("title").remove();
+    d3.selectAll(".highlight").remove();
+    d3.selectAll("line")
+        .attr("stroke-width", 1)
+        .attr("stroke", "black")
+        .style("stroke-opacity", 0.3);
   }
 
     var currentOrder = 'name';

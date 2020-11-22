@@ -62,6 +62,12 @@ const renderNodelink = (nodes, links, max) => {
           .attr("stroke-width", 2)
           .attr("stroke", "red")
           .style("stroke-opacity", 1);
+        d3.select(`#T${id}-${i}`)
+          .attr("stroke-width", 2)
+          .attr("stroke", "red")
+        d3.select(`#T${i}-${id}`)
+          .attr("stroke-width", 2)
+          .attr("stroke", "red")
       }
     })
     .on("mouseout", function() {
@@ -69,6 +75,9 @@ const renderNodelink = (nodes, links, max) => {
         .attr("stroke-width", 1)
         .attr("stroke", "black")
         .style("stroke-opacity", 0.3);
+      d3.selectAll("rect")
+        .attr("stroke-width", 1)
+        .attr("stroke", "white")
     });
 
   node.append("title").text(d => d.id);
@@ -95,73 +104,6 @@ const renderNodelink = (nodes, links, max) => {
   });
   return svg.node();
 };
-
-
-// const renderAdjacency = (matrix, nodes) => {
-//   const size = 12;
-//   const svg2 = d3.select('#svg2').append('g')
-//   matrix.forEach((tile, i) => {
-//     svg2.append("g")
-//       .attr("transform", "translate(20,20)")
-//       .attr("id", "row" + (i + 1))
-//       .selectAll("rect")
-//       .data(tile)
-//       .enter()
-//       .append("rect")
-//       .attr("class", "tile")
-//       .attr("width", size)
-//       .attr("height", size)
-//       .attr("x", d => d.x * size)
-//       .attr("y", d => d.y * size)
-//       .attr("id", d => `T${d.x + 1}-${d.y + 1}`)
-//       .style("fill-opacity", d => d.weight)
-//       .on("mouseover", t => {
-//         d3.select(`#${t.path[0].id}`)
-//           .style("fill", "red");
-//         if(t.path[0].style['fillOpacity'] != "0") {
-//             var id = t.path[0].id.replace('T', '');
-//             id = id.split('-');
-//             d3.select(`#E${id[0]}-${id[1]}`)
-//               .attr("stroke-width", 2)
-//               .attr("stroke", "red")
-//               .style("stroke-opacity", 1);
-//             d3.select(`#E${id[1]}-${id[0]}`)
-//               .attr("stroke-width", 2)
-//               .attr("stroke", "red")
-//               .style("stroke-opacity", 1);
-//         }
-//       })
-//       .on("mouseout", function() {
-//         d3.selectAll("rect")
-//           .style("fill", "black");
-//         d3.selectAll("line")
-//           .attr("stroke-width", 1)
-//           .attr("stroke", "black")
-//           .style("stroke-opacity", 0.3);
-//       });
-//     });
-        
-//     svg2.append("g")
-//         .attr("transform","translate(20,15)")
-//         .selectAll("text")
-//         .data(nodes)
-//         .enter()
-//         .append("text")
-//         .attr("x", (d,i) => i * size + size / 2)
-//         .text(d => d.id)
-//         .style("text-anchor", "middle")
-//         .style("font-size", "6px");
-
-//     svg2.append("g").attr("transform","translate(12,23)")
-//         .selectAll("text")
-//         .data(nodes)
-//         .enter()
-//         .append("text")
-//         .attr("y", (d,i) => i * size + size / 2)
-//         .text(d => d.id)
-//         .style("text-anchor", "middle")
-//         .style("font-size", "8px");
-// };
 
 d3.csv('http://vis.lab.djosix.com:2020/data/infect-dublin.edges').then((data) => {
   var max = 0;

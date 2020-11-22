@@ -8,26 +8,28 @@
     <script src="https://unpkg.com/d3-force@2.1.1/dist/d3-force.min.js"></script>
   </head>
   <body>
-    <p>Order: <select id="order">
-      <option value="name">by Name</option>
-      <option value="count">by Frequency</option>
-      <option value="group">by Cluster</option>
-      <option value="leafOrder">by Leaf Order</option>
-      <option value="leafOrderDist">by Leaf Order over Distance Matrix</option>
-      <option value="barycenter">by Crossing Reduction</option>
-      <option value="rcm">by Bandwidth Reduction (RCM)</option>
-      <option value="spectral">Spectral</option>
-    </select>
-    <p>Distance: <select id="distance">
-      <option value="manhattan" selected="true">Manhattan</option>
-      <option value="euclidean">Euclidean</option>
-      <option value="chebyshev">Chebyshev</option>
-      <option value="hamming">Hamming</option>
-      <option value="jaccard">Jaccard</option>
-      <option value="braycurtis">Braycurtis</option>
-    </select>
+    <div class="controls">
+      <p>Order: <select id="order">
+        <option value="name">by Name</option>
+        <option value="count">by Frequency</option>
+        <option value="group">by Cluster</option>
+        <option value="leafOrder">by Leaf Order</option>
+        <option value="leafOrderDist">by Leaf Order over Distance Matrix</option>
+        <option value="barycenter">by Crossing Reduction</option>
+        <option value="rcm">by Bandwidth Reduction (RCM)</option>
+        <option value="spectral">Spectral</option>
+      </select>
+      <p>Distance: <select id="distance">
+        <option value="manhattan" selected="true">Manhattan</option>
+        <option value="euclidean">Euclidean</option>
+        <option value="chebyshev">Chebyshev</option>
+        <option value="hamming">Hamming</option>
+        <option value="jaccard">Jaccard</option>
+        <option value="braycurtis">Braycurtis</option>
+      </select>
+    </div>
     <div id="nodelink">
-      <svg width="800" height="900" id="svg1"></svg>
+      <svg width="800" height="850" id="svg1"></svg>
     </div>
     <div id="adjacencymatrix">
       <!-- <svg width="4000" height="5000" id="svg2"></svg> -->

@@ -35,3 +35,9 @@ body {
     stroke: red;
     stroke-width: 2;
 }
+
+.controls {
+    width: 500px;
+    display: flex;
+    justify-content: space-around;
+}
